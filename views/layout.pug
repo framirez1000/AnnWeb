@@ -1,0 +1,97 @@
+doctype html
+html
+  head
+    title= title
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css", integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z", crossorigin="anonymous")
+    script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js", integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj", crossorigin="anonymous")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js", integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV", crossorigin="anonymous")
+    link(rel='stylesheet', href='/stylesheets/style.css')
+
+    script(src="https://www.chartjs.org/assets/Chart.min.js")
+    script(src="https://code.jscharting.com/2.9.0/jscharting.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js")
+  block link
+    -var selected = 'home'; //default
+  -var menu = { 'Home': '/', 'Projects': '/home/projects', 'Team': '/home/authors', 'Contact': '/home/contact', 'Contact1': '/home/contact', 'Contact2': '/home/contact' };
+  -var sideMenu = [{title:'Home',ref:'/',src:'/images/homeIcon.png'}, {title:'Projects',ref:'/home/projects',src:'/images/PLCsNet.jpg'},{title:'Team',ref:'/home/authors',src:'/images/teamIcon.jpg'},{title:'Contact',ref:'/home/contact',src:'/images/contactIcon.png'}];
+
+  body(id=device)
+    div(style='text-align:center')
+      nav.navbar.navbar-expand-md.navbar-dark.bg-dark.navbar-toggleable-md.navbar-faded.fixed-top
+        button.navbar-toggler.collapsed(id="collapsedButton" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation")
+          span.sr-only Toggle navigation
+          span.navbar-toggler-icon.menu-icon-size
+          span.my-1.mx-2.close.menu-icon-size ᐃ
+        
+        if (device === 'Mobile')
+            <ul class="nav navbar-nav.mr-auto mx-auto">
+              <li class="nav-item"><a class="nav-link" href="#">!{selected}</a></li>
+            </ul>
+            a.nav-link.fixed-right(href='') login
+        
+        a.navbar-brand(href='/') 
+          img(class="imgLogo" src= "/images/fr Logo-3.jpg", title="Home", alt="Logo photo")
+
+        #main-navbar.collapse.navbar-collapse
+          ul.navbar-nav.mr-auto.horiz_list
+            each val in sideMenu
+              if selected === val.title
+                li.nav-item.active
+                  a.nav-link(href=val.ref, title=val.title)= val.title 
+              else
+                  a.nav-link(href=val.ref, title=val.title)= val.title 
+            
+            li.nav-item.dropdown
+              a#dropdown01.nav-link.dropdown-toggle(href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Fmrk
+              .dropdown-menu
+                a.dropdown-item(href="/fmrk/home") Home
+                a.dropdown-item(href="/fmrk/about") About
+                a.dropdown-item(href="/fmrk/services") Services 
+                a.dropdown-item(href="/#") Contact
+        unless (device === 'Mobile')
+          a.nav-link.fixed-right(href='') login
+    div.
+      <script> 
+        $('#main-navbar').on('show hide', function(e){
+          if(!$(this).is(e.target)) return;
+          $('#collapsedButton').toggleClass('collapse icon-arrow-up', 200);});
+      </script>
+    
+    div(style="display:flex; vertical-align:middle")
+      div(style="")
+        img(src='images/72_eli-np-rgb-grey.gif' style="hight:100px; width:150px;")
+      div(style="text-align:center; width:100%; vertical-align:middle; padding-top:50px")
+        h1 #{title}
+    div(id="header-blank")
+
+   
+
+
+
+    //- div.container
+        div(class='row')
+          div.hide_hdr(id='side_bar' class='col-sm-2' style='margin-top:50px')
+           block sidebar
+             div
+              h5 
+              nav.sideMenuImg
+                ul(class='sidebar-nav' style='margin:35px')
+                  each val in sideMenu
+                    li(style='list-style-type:none')
+                      if selected === val.title
+                        a.selected(href=val.ref, title=val.title)
+                          img.sideMenuImg(src= val.src, title=val.title alt=val.title + "photo")
+                        br
+                        br
+                      else
+                        a(href=val.ref, title=val.title)
+                          img.sideMenuImg(src= val.src, title=val.title, alt=val.title + "photo")
+                        br
+                        br
+                    
+                  hr
+              
+          div(class='col-sm-10 px-0' style='padding-top:75px')
+    block content

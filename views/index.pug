@@ -1,0 +1,194 @@
+extends layout
+
+
+block content
+  //h1= title
+
+  div.row(style="text-align:center; padding-left:20px; margin:0 auto")
+    div.col-sm-5
+      h2 Temperature (°C)
+    div
+      h2 Pressure    (mBar)
+  hr
+  div.row(id='dataTable' style="text-align:center; padding-left:20px")
+    div.col-sm-5
+      h3 -------
+    div
+      h3 -------
+
+    //div(id="chartDiv" style="max-width: 740px;height: 400px;margin: 0px auto")
+
+  div.row(style="display:flex; margin:0 auto")
+    div.container(max-width="100%" height="100" style="display=table-row; margin: 0 auto")
+      canvas(id="myChart" width="600" height="400" style="display:inline")
+    div.col-2
+      a(href="create" style="")
+        button(type="button") Start/Stop
+      
+  <!-- h2(id="app")= 'Temp: ' + temp + globalString
+
+  h1(id='Temp') Temp is: // I WANT THIS TO BE UPDATED -->
+
+   div(class="footer navbar-fixed-bottom" style="font-size: 5px")
+     div(class="text-center p-3" style="display:flex-block; font-size: 15px") @ 2021 Copyright: ELI-NP
+     div(class="text-dark text-right p-3" style="align:right")
+       a(class="text-dark text-right p-3" href="#"  style="align:right; font-size: 7px")   Powered by: FR
+     
+     // div(class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)") @ 2021 Copyright: ELI-NP    
+     // a(class="text-dark" href="#" style="text-align:right")   Powered by FR
+
+  
+  // client side
+  script. 
+    function fetchMostRecentData() {
+     fetch("/data")
+      .then(response => response.json())
+      .then(data => updateView(data))
+      .catch(err => showError(err));
+    }
+    var tempValue = 0.0;
+    var pressValue = 0.0;
+    function updateView(data) {
+      let container = document.getElementById("dataTable");
+
+      container.innerHTML = `
+        <!--div class="row" style="text-align:center; padding-left:20px"-->
+          <div class="col-sm-5 px-5">
+            <h3> ${data.Temp} </h3>
+          </div>
+          <div class="px-5">
+             <h3> ${data.Pressure} </h3>
+          </div>
+        <!--/div-->
+                  <!--<h2>Temp: ${data.Temp}  °C</h2>
+        <h2>Pressure: ${data.Pressure}  mBar</h2> -->
+       `;
+       tempValue = parseFloat(data.Temp);
+       pressValue = parseFloat(data.Pressure);
+       RandomData();
+    }
+
+    // Graph
+    // 
+    //button(id="Start/Stop" type="button")
+
+    var canvas = document.getElementById('myChart');
+    var data = {
+      labels: [1, 2, 3, 4, 5, 6, 7],
+      datasets: [
+        {
+            label: "Temperature",
+            //yAxisID: 'Temp',
+            fill: false,
+            lineTension: 0.05,
+            backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            borderWidth: 1.5,
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 0.5,
+            pointHitRadius: 1,
+            id: "id1",
+            data: [65.0, 59.0, 80.0, 0.0, 56.0, 55.0, -140.5],
+        },
+        {
+            label: "Pressure",
+            //yAxisID: 'Press',
+            fill: false,
+            lineTension: 0.05,
+            backgroundColor: "rgba(0,204,0,0.4)",
+            borderColor: "rgba(0,204,0,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            borderWidth: 1.5,
+            pointBorderColor: "rgba(50,50,50,1)",
+            pointBackgroundColor: "#555",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(50,50,50,1)",
+            pointHoverBorderColor: "rgba(50,50,50,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 1,
+            yAxisID: "id2",
+            data: [.65, -0.90, 0.10, 0.30, 0.50, 0.7, 0.9],
+        }
+      ]
+    };
+    var option = {
+      showLines: true,
+      scaleUse2Y: true,
+      scales: {
+            xAxes: [{
+                ticks: {
+                    display: false
+                }
+            }],
+            yAxes: [{
+               display: true,
+               position: 'left',
+               type: "linear",
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Temperature (°C)',
+                    beginAtZero: true,
+                },
+               yAxisID: "id1"
+               //id: "id1", // incorrect property name.
+            },{
+               ticks: {
+                        beginAtZero: true,
+                       // max: 1,
+                       // min: 0
+                    },
+               scaleLabel: {
+                    display: true,
+                    labelString: 'Pressure (mBar)',
+                    //beginAtZero: true,
+                },
+               //display: false,
+               display: true, // Hopefully don't have to explain this one.
+               type: "linear",
+               position:"right",
+               gridLines: {
+                   display: false
+               },
+               //yAxisID: "id2"
+               id: "id2" // incorrect property name.
+            },]
+        }
+    };
+    var myLineChart = Chart.Line(canvas,{
+      data:data,
+      options:option
+    });
+    function RandomData(){
+      /*var newData=[];
+      for(var i=0;i<7;i++){
+       newData.push(Math.round(Math.random() * 100))
+      }*/
+      myLineChart.data.datasets[0].data.push((1*tempValue));
+      myLineChart.data.datasets[1].data.push((1*pressValue));
+      myLineChart.data.labels.push(myLineChart.data.labels[myLineChart.data.labels.length-1]+1);
+      myLineChart.update();
+    }
+    //End graph
+
+    function showError(err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+
+    // call fetchMostRecentData once every 10s
+    setInterval(fetchMostRecentData, 2000);

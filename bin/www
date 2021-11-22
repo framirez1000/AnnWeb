@@ -1,0 +1,147 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('ann-web:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/** 
+ ************   EPICS controls section ***************
+ ****/
+var epics = require('epics');
+const random = require('random');
+global.globalTemp = "This can be accessed anywhere!";
+global.globalTemp1 = 0.00;
+global.globalPressure = 0.0006;
+console.log(globalTemp);
+console.log(globalPressure); 
+
+var pvTemp = new epics.Channel('S4JH0481:EPICS_Server_Library1:TempValue.VAL');
+var pvPressure =  new epics.Channel('S4JH0481:EPICS_Server_Library1:Pressure.VAL');
+var pvTemp1 = new epics.Channel('172.18.4.108:EpicsLibrary:temp1.VAL');
+const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
+var temp = 0.0;
+var pressure = 0.000335;
+var temp1 = 0.00;
+//var pv = new epics.Channel('172.18.4.108:EpicsLibrary:DetTempValues.VAL');
+
+
+pvTemp.on('value', function(data) {
+    console.log('Temperature in off:', data);
+    temp=data;
+    globalTemp= data;
+    console.log(pvTemp.connected());
+});
+
+pvTemp.connect(function() {
+  pvTemp.monitor();
+  console.log("Monitoring Temperature");
+});
+
+pvPressure.on('value', function(data) {
+    pressure=data;
+    globalPressure= data + 1 + random.float(min = 0, max = 1);
+    console.log(pvPressure.connected());
+    console.log('Pressure:', globalPressure);
+});
+
+pvPressure.connect(function() {
+  pvPressure.monitor();
+  console.log("Monitoring Pressure");
+});
+pvTemp1.on('value', function(data) {
+    globalTemp1 = data;
+    console.log('TemperatureE8:', globalTemp1);
+});
+
+pvTemp1.connect(function() {
+  pvTemp1.monitor();
+  console.log("Monitoring Temperature in E8");
+});
+
+/***************  End EPICS controls *********/
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
