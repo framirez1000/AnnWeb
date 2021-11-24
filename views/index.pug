@@ -18,13 +18,16 @@ block content
 
     //div(id="chartDiv" style="max-width: 740px;height: 400px;margin: 0px auto")
 
-  div.row(style="display:flex; margin:0 auto")
-    div.container(max-width="100%" height="100" style="display=table-row; margin: 0 auto")
-      canvas(id="myChart" width="600" height="400" style="display:inline")
-    div.col-2
-      a(href="create" style="")
-        button(type="button") Start/Stop
+  div.row(style="display:flex; margin:0; padding:0")
+    div.container(max-width="100%" height="100" style="display=inline; margin: 0; padding:0")
       
+          canvas(id="myChart")
+    div
+      button(id="StartBtn" type="button" onclick="StartStop()") Start
+    div.iframe-container 
+      //(max-width="100%" height="100%" style="display=inline; margin: 0; padding:0")
+      iframe#iframe-img(src="http://172.18.7.25:8888", title='Temp Control', width='650', height='575', scrolling='', frameborder='0',  name="iframe_img", onerror="'ImageNotFound.jpg'")
+       
   <!-- h2(id="app")= 'Temp: ' + temp + globalString
 
   h1(id='Temp') Temp is: // I WANT THIS TO BE UPDATED -->
@@ -40,11 +43,25 @@ block content
   
   // client side
   script. 
+    function StartStop() {
+      var btnValue = document.getElementById("StartBtn").innerHTML;
+      if (btnValue.localeCompare("Start") == 0) {
+        document.getElementById("StartBtn").innerHTML = "Stop";
+        //alert("Started");
+      }
+      else {
+        document.getElementById("StartBtn").innerHTML = "Start";
+        //alert("Stopped");
+      }
+    }
     function fetchMostRecentData() {
-     fetch("/data")
-      .then(response => response.json())
-      .then(data => updateView(data))
-      .catch(err => showError(err));
+     if (document.getElementById("StartBtn").innerHTML == "Stop") {
+       fetch("/data")
+        .then(response => response.json())
+        .then(data => updateView(data))
+        .catch(err => showError(err));
+       document.getElementById('iframe-img').src += '';
+     }
     }
     var tempValue = 0.0;
     var pressValue = 0.0;
@@ -127,8 +144,19 @@ block content
       ]
     };
     var option = {
+      responsive: true,
       showLines: true,
       scaleUse2Y: true,
+      /*plugins: {        
+          zoom: {
+            pan: {
+              enabled: true
+            },
+            zoom: {
+              enabled: true
+            }
+          }
+      }*/
       scales: {
             xAxes: [{
                 ticks: {
@@ -139,6 +167,13 @@ block content
                display: true,
                position: 'left',
                type: "linear",
+               ticks: {
+                        beginAtZero: true,
+                        steps: 10,
+                        stepValue: 0.01,
+                        min: 0,
+                        max: 100
+                    },
                 scaleLabel: {
                     display: true,
                     labelString: 'Temperature (°C)',
@@ -147,27 +182,31 @@ block content
                yAxisID: "id1"
                //id: "id1", // incorrect property name.
             },{
-               ticks: {
-                        beginAtZero: true,
-                       // max: 1,
-                       // min: 0
-                    },
                scaleLabel: {
                     display: true,
                     labelString: 'Pressure (mBar)',
                     //beginAtZero: true,
                 },
+               //type: 'logarithmic',
+               ticks: {
+                        beginAtZero: true,
+                        steps: 1000,
+                        stepValue: 100,
+                        min: 0,
+                        max: 0.002
+                    },
                //display: false,
                display: true, // Hopefully don't have to explain this one.
-               type: "linear",
+               //type: "linear",
                position:"right",
                gridLines: {
-                   display: false
+                   display: true
                },
                //yAxisID: "id2"
                id: "id2" // incorrect property name.
             },]
         }
+        
     };
     var myLineChart = Chart.Line(canvas,{
       data:data,
@@ -191,4 +230,4 @@ block content
     }
 
     // call fetchMostRecentData once every 10s
-    setInterval(fetchMostRecentData, 2000);
+    setInterval(fetchMostRecentData, 5000);

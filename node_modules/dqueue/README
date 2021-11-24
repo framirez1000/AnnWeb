@@ -1,0 +1,14 @@
+README
+------
+
+var q = new Queue(function(item, callback) {
+  // Do something with the item
+
+  callback();
+}, concurrency);
+
+q.drain = function() {
+  // All items have been iterated over
+};
+
+q.push(items);

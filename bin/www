@@ -32,7 +32,7 @@ server.on('listening', onListening);
 /** 
  ************   EPICS controls section ***************
  ****/
-var epics = require('epics');
+/*var epics = require('epics');
 const random = require('random');
 global.globalTemp = "This can be accessed anywhere!";
 global.globalTemp1 = 0.00;
@@ -81,7 +81,7 @@ pvTemp1.on('value', function(data) {
 pvTemp1.connect(function() {
   pvTemp1.monitor();
   console.log("Monitoring Temperature in E8");
-});
+});*/
 
 /***************  End EPICS controls *********/
 
